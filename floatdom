@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>floatdom</title>
+  <style>
+  .pets__dog {
+    position: absolute;
+  }
+
+  .chews__sock {
+    height: 100px;
+    width: 80px;
+    background: #6495ED;
+    border-radius: 4px;
+    margin: 4px;
+    box-shadow = '0px 0px 8px rgba(0,0,0,0)';
+    transition: all 1s;
+    transition-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
+  .is-dirty {
+    background: #FF5733;
+    height: 80px;
+  }
+  </style>
+</head>
+<body>
+  <button>Magical Button</button>
+  <div class="pets">
+    <div class="pets__dog chews" id="doggy">
+
+      <div class="chews__sock"></div>
+      <div class="chews__sock is-dirty"></div>
+      <div class="chews__sock"></div>
+
+    </div>
+  </div>
+
+  <script>
+  var button = document.querySelector('button');
+  var pet = document.querySelector('.pets');
+  var dog = pet.querySelector('.pets__dog');
+
+  function floatDirtyThings(things, box) {
+    things.forEach(function(thing, dex) {
+      thing.dataset.dex = dex;
+      if (thing.classList.contains('is-dirty')) {
+        box.insertBefore(thing, box.firstChild);
+      }
+    });
+  }
+
+  function getTops(things) {
+    var coords, top, dataDex;
+    var result = [];
+
+    things.forEach(function(thing) {
+      coords = thing.getBoundingClientRect();
+      top = coords.top;
+      dataDex = thing.dataset.dex;
+      result.push({
+        top: top,
+        dex: dataDex
+      });
+    });
+    return result;
+  }
+
+  function setTops(things, els) {
+    var top, dex;
+
+    if (!els) { // init
+      els = things;
+    }
+
+    things.forEach(function(thing, dex) {
+      if (thing.top) {
+        els[dex].style.position = 'fixed';
+      }
+      top = thing.top ? thing.top : thing.getBoundingClientRect().top;
+      dex = thing.dex ? thing.dex : dex;
+      els[dex].style.top = top + 'px';
+      els[dex].style.boxShadow = '0px 0px 8px rgba(0,0,0,0.5)';
+      delete thing.dex;
+      delete thing.top;
+    });
+  }
+
+  function cleanUp() {
+    this.style.boxShadow = '0px 0px 8px rgba(0,0,0,0)';
+    dog.style.visibility = 'visible';
+
+    var clone = this.closest('.clone');
+    if (clone) clone.remove();
+  }
+
+  function makeMagic() {
+
+    var chews = dog.querySelectorAll('.chews__sock');
+
+    // clone it
+    var clone = dog;
+
+    // add an invisible div, position absolute
+    var div = document.createElement('div');
+    div.classList.add('clone')
+    div.innerHTML = clone.outerHTML;
+    pet.appendChild(div);
+
+    // hide orig
+    dog.style.visibility = 'hidden';
+
+    var cloneDogs = div.querySelector('.pets__dog');
+    var cloneChews = cloneDogs.querySelectorAll('.chews__sock');
+    cloneChews.forEach(cloneChew => cloneChew.addEventListener('transitionend', cleanUp));
+
+    // init tops
+    setTops(cloneChews);
+
+    // float clone
+    floatDirtyThings(chews, dog);
+
+    // find tops
+    var tops = getTops(chews);
+
+    // set updated tops for anim
+    setTops(tops, cloneChews);
+  }
+
+  button.addEventListener('mouseup', makeMagic);
+  </script>
+</body>
+</html>
