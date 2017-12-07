@@ -41,78 +41,80 @@
 	</div>
 
 	<script>
-	  function floatDemGoodTings() {
-		/* This script will clone a set of elements and append them so they appear in front.  In the meantime, the original list gets hidden and sorted.  Once that is done, the clone acquires information from the original, sorted list, and animates after new top positions get assigned.  The original is now made visible and the clone disappears. */
-		var floatdem = document.querySelector('.floatdem');
-		var good = floatdem.querySelector('.floatdem__good');
-		var tings = good.querySelectorAll('.tings__move');
+	function floatDemGoodTings() {
+		"use strict";
+		var floatdem = document.querySelector(".floatdem");
+		var good = floatdem.querySelector(".floatdem__good");
+		var tings = good.querySelectorAll(".tings__move");
 		var clone = good;
 
 		function floatThings(tings, good) {
-		tings.forEach(function(ting, dex) {
-		  ting.dataset.dex = dex;
-		  if (ting.classList.contains('is-irie')) {
-			good.insertBefore(ting, good.firstChild);
-		  }
-		});
+			tings.forEach(function (ting, idx) {
+				ting.dataset.dex = idx;
+				if (ting.classList.contains("is-irie")) {
+					good.insertBefore(ting, good.firstChild);
+				}
+			});
 		}
 
 		function getTops(tings) {
-		var coords, top, dataDex;
-		var result = [];
+			var coords, top, dataDex;
+			var result = [];
 
-		tings.forEach(function(ting) {
-		  coords = ting.getBoundingClientRect();
-		  top = coords.top;
-		  dataDex = ting.dataset.dex;
-		  result.push({
-			top: top,
-			dex: dataDex
-		  });
-		});
-		return result;
+			tings.forEach(function (ting) {
+				coords = ting.getBoundingClientRect();
+				top = coords.top;
+				dataDex = ting.dataset.dex;
+				result.push({
+					top: top,
+					dex: dataDex
+				});
+			});
+			return result;
 		}
 
 		function setTops(listTings, cloneTings) {
-		var top, dex;
 
-		if (!cloneTings) { // init
-		  cloneTings = listTings;
+			if (!cloneTings) { // init
+				cloneTings = listTings;
+			}
+
+			listTings.forEach(function (listTing, idx) {
+				var top;
+
+				if (listTing.top) {
+					cloneTings[idx].style.position = "fixed";
+				}
+				top = listTing.top || listTing.getBoundingClientRect().top;
+				cloneTings[idx].style.top = top + "px";
+				cloneTings[idx].style.boxShadow = "0px 0px 8px rgba(0,0,0,0.5)";
+				delete listTing.dex;
+				delete listTing.top;
+			});
 		}
 
-		listTings.forEach(function(listTing, dex) {
-		  if (listTing.top) {
-			 cloneTings[dex].style.position = 'fixed';
-		  }
-		  top = listTing.top ? listTing.top : listTing.getBoundingClientRect().top;
-		  dex = listTing.dex ? listTing.dex : dex;
+		function cleanUp(e) {
+			var disTing = e.currentTarget;
+			var disClone = disTing.closest(".floatdem__clone");
 
-		  cloneTings[dex].style.top = top + 'px';
-		  cloneTings[dex].style.boxShadow = '0px 0px 8px rgba(0,0,0,0.5)';
-		  delete listTing.dex;
-		  delete listTing.top;
-		});
-		}
-
-		function cleanUp() {
-		this.style.boxShadow = 'none';
-		good.style.visibility = 'visible';
-
-		var clone = this.closest('.floatdem__clone');
-		if (clone) clone.remove();
+			disTing.style.boxShadow = "none";
+			good.style.visibility = "visible";
+			if (disClone) {
+				disClone.remove();
+			}
 		}
 
 		// add an invisible div, position absolute
-		var div = document.createElement('div');
-		div.classList.add('floatdem__clone')
+		var div = document.createElement("div");
+		div.classList.add("floatdem__clone");
 		div.innerHTML = clone.outerHTML;
 		floatdem.appendChild(div);
 
 		// hide orig
-		good.style.visibility = 'hidden';
-		var cloneGood = div.querySelector('.floatdem__good');
-		var cloneTings = cloneGood.querySelectorAll('.tings__move');
-		cloneTings.forEach(cloneTing => cloneTing.addEventListener('transitionend', cleanUp));
+		good.style.visibility = "hidden";
+		var cloneGood = div.querySelector(".floatdem__good");
+		var cloneTings = cloneGood.querySelectorAll(".tings__move");
+		cloneTings.forEach((cloneTing) => cloneTing.addEventListener("transitionend", cleanUp));
 
 		// set or init tops for anim
 		setTops(cloneTings);
@@ -126,8 +128,8 @@
 		setTops(tops, cloneTings);
 	}
 
-	var button = document.querySelector('button');
-	button.addEventListener('mouseup', floatDemGoodTings);
+	var button = document.querySelector("button");
+	button.addEventListener("mouseup", floatDemGoodTings);
 	</script>
 </body>
 </html>
