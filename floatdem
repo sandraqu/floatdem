@@ -97,6 +97,7 @@
 			var disTing = e.currentTarget;
 			var disClone = disTing.closest(".floatdem__clone");
 
+			disTing.removeEventListener("transitionend", cleanUp);
 			disTing.style.boxShadow = "none";
 			good.style.visibility = "visible";
 			if (disClone) {
